@@ -108,14 +108,20 @@ void lerIngredientes(Ingredientes &i){
 
 //Buscas
 
-int buscarCliente(Cliente clients[], int qtd, int codigo){
-	for(int i=0; i<qtd; i++){
-		if(clients[i].codigo==codigo){
-			return i;
-		}
-	}
-	return -1;
+int buscarCliente(Clientes clientes[], int qtd, int codigo){
+    for(int i=0; i<qtd; i++){
+        if(clientes[i].codigo == codigo){
+            return i;
+        }
+    }
+    return -1;
 }
 
-
-
+int buscarGarcons(Garcons garcons[], int qtd, int codigo){
+    for(int i=0; i<qtd; i++){
+        if(garcons[i].codigo == codigo){
+            return i;
+        }
+    }
+    return -1;
+}
