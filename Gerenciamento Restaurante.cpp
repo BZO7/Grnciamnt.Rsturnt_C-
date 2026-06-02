@@ -125,3 +125,114 @@ int buscarGarcons(Garcons garcons[], int qtd, int codigo){
     }
     return -1;
 }
+
+int buscaProduto(Produto produtos[], int qtd, int codigo){
+
+    for(int i=0;i<qtd;i++){
+
+        if(produtos[i].codigo == codigo &&
+           produtos[i].ativo==true)
+
+            return i;
+    }
+
+    return -1;
+}
+
+int buscaIngrediente(
+        Ingrediente ingredientes[],
+        int qtd,
+        int codigo){
+
+    for(int i=0;i<qtd;i++){
+
+        if(ingredientes[i].codigo==codigo)
+            return i;
+    }
+
+    return -1;
+}
+//Cliente
+void inserirCliente(
+        Cliente clientes[],
+        int &qtd){
+
+    int codigo;
+
+    cout<<"Codigo: ";
+    cin>>codigo;
+
+    if(buscaCliente(clientes,qtd,codigo)!=-1){
+
+        cout<<"Codigo existente\n";
+        return;
+    }
+
+    clientes[qtd].codigo=codigo;
+
+    cin.ignore();
+
+    cout<<"Nome: ";
+    getline(cin,clientes[qtd].nome);
+
+    cout<<"Telefone: ";
+    getline(cin,clientes[qtd].telefone);
+
+    qtd++;
+
+    cout<<"Cliente cadastrado\n";
+}
+//Garcom
+void inserirGarcom(
+        Garcom garcons[],
+        int &qtd){
+
+    int codigo;
+
+    cout<<"Codigo: ";
+    cin>>codigo;
+
+    if(buscaGarcom(garcons,qtd,codigo)!=-1){
+
+        cout<<"Codigo existente\n";
+        return;
+    }
+
+    garcons[qtd].codigo=codigo;
+
+    cin.ignore();
+
+    cout<<"Nome: ";
+    getline(cin,garcons[qtd].nome);
+
+    qtd++;
+
+    cout<<"Garcom cadastrado\n";
+}
+//Excluir produto
+void excluirProduto(
+        Produto produtos[],
+        int qtd){
+
+    int codigo;
+
+    cout<<"Codigo: ";
+    cin>>codigo;
+
+    int pos =
+        buscaProduto(
+            produtos,
+            qtd,
+            codigo
+        );
+
+    if(pos==-1){
+
+        cout<<"Nao encontrado\n";
+        return;
+    }
+
+    produtos[pos].ativo=false;
+
+    cout<<"Excluido\n";
+}
