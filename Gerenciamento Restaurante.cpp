@@ -126,7 +126,7 @@ int buscarGarcons(Garcons garcons[], int qtd, int codigo){
     return -1;
 }
 
-int buscaProduto(Produto produtos[], int qtd, int codigo){
+int buscaProduto(Produtos produtos[], int qtd, int codigo){
 
     for(int i=0;i<qtd;i++){
 
@@ -140,7 +140,7 @@ int buscaProduto(Produto produtos[], int qtd, int codigo){
 }
 
 int buscaIngrediente(
-        Ingrediente ingredientes[],
+        Ingredientes ingredientes[],
         int qtd,
         int codigo){
 
@@ -154,7 +154,7 @@ int buscaIngrediente(
 }
 //Cliente
 void inserirCliente(
-        Cliente clientes[],
+        Clientes clientes[],
         int &qtd){
 
     int codigo;
@@ -162,7 +162,7 @@ void inserirCliente(
     cout<<"Codigo: ";
     cin>>codigo;
 
-    if(buscaCliente(clientes,qtd,codigo)!=-1){
+    if(buscarCliente(clientes,qtd,codigo)!=-1){
 
         cout<<"Codigo existente\n";
         return;
@@ -184,7 +184,7 @@ void inserirCliente(
 }
 //Garcom
 void inserirGarcom(
-        Garcom garcons[],
+        Garcons garcons[],
         int &qtd){
 
     int codigo;
@@ -192,7 +192,7 @@ void inserirGarcom(
     cout<<"Codigo: ";
     cin>>codigo;
 
-    if(buscaGarcom(garcons,qtd,codigo)!=-1){
+    if(buscarGarcons(garcons,qtd,codigo)!=-1){
 
         cout<<"Codigo existente\n";
         return;
@@ -211,7 +211,7 @@ void inserirGarcom(
 }
 //Excluir produto
 void excluirProduto(
-        Produto produtos[],
+        Produtos produtos[],
         int qtd){
 
     int codigo;
