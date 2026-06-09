@@ -1,192 +1,75 @@
-Sistema de Gerenciamento de Restaurante em C++
-Descrição
+Implementar um programa em C++ que percorra os registros de um arquivo sequencial,
+mostrando suas informa��es, desde o primeiro registro at� o ultimo.
+Para simular a estrutura de um arquivo sequencial, utilize uma estrutura (Struct).
+Crie uma fun��o espec�fica para a leitura dos dados e outra fun��o espec�fica para
+o percurso dos registros.
+/* Implementar um programa em C++ que percorra os registros de um arquivo sequencial,
+mostrando suas informações, desde o primeiro registro até o último.
+Nesse exercício, vamos utilizar a biblioteca fstream para leitura e escrita em arquivos.
+- Crie funções específicas para:
+    - Ler os dados de clientes, inserindo as informações de cada cliente em uma linha de um arquivo. 
+    - Percorrer os registros dos clientes já cadastrados nesse arquivo e exibir em tela.
+ Implementar um programa em C++ que percorra os registros de um arquivo sequencial,
+mostrando suas informa��es, desde o primeiro registro at� o ultimo.
+Para simular a estrutura de um arquivo sequencial, utilize uma estrutura (Struct).
+Crie uma fun��o espec�fica para a leitura dos dados e outra fun��o espec�fica para
+o percurso dos registros.
+Busca Aleat�ria = Busca Bin�ria
+Inclus�o de registros Arquivo Sequencial
+Exclus�o de registros Arquivo Sequencial
 
-Este projeto consiste em um sistema de gerenciamento de restaurante desenvolvido em C++, utilizando estruturas (struct) e vetores para simular arquivos sequenciais em memória.
+Isso foi oque o profers ensino para nos ate agora, e agora ele que que agente faca um gerenciamento de restaurante com no maximo 1.000 linhas, ou seja nao pode ter poucas linhas. Com base nesse enunciado:
+Escreva um programa em C++ para criar as seguintes estruturas que simularão arquivos sequenciais para uma aplicação de gerenciamento de um restaurante:
 
-O sistema permite realizar o controle de:
+Categorias: código, descrição
+Produtos (cardápio): código, descrição, código_categoria, preço_unitario
+Ingredientes: código, descrição, quant_estoque, estoque_minimo, estoque_maximo, preço_unitario
+Clientes: código, nome, telefone
+Garçons: código, nome
+Pedidos: código, código_cliente, código_garçom, data
+Itens do Pedido: código_pedido, código_produto, quantidade
+Consumo de Ingredientes: código_produto, código_ingrediente, quantidade_necessária
 
-Categorias
-Produtos do cardápio
-Ingredientes
-Clientes
-Garçons
-Pedidos
-Itens do pedido
-Consumo de ingredientes
+1. Escreva funções específicas para a leitura dos dados das estruturas: Categorias, Produtos e Ingredientes.
 
-O programa foi desenvolvido com foco em lógica de programação, manipulação de estruturas, vetores, funções e validações de dados.
+2. Escreva uma função para permitir a inclusão de novos registros na tabela de Clientes.
+2.1) O programa deverá garantir que o código do cliente a ser inserido não existe na tabela de Clientes.
 
-Funcionalidades
-Cadastro e leitura de dados
+3. Escreva uma função para permitir a inclusão de novos registros na tabela de Garçons.
+3.1) O programa deverá garantir que o código do garçom a ser inserido não existe na tabela de Garçons.
 
-O sistema possui funções específicas para leitura e armazenamento de:
+4. Escreva uma função para permitir a exclusão de registros da tabela de Produtos.
 
-Categorias
-Produtos
-Ingredientes
-Controle de clientes
-Inclusão de novos clientes
-Validação para impedir códigos duplicados
-Controle de garçons
-Inclusão de garçons
-Verificação de código já existente
-Controle de produtos
-Exclusão de produtos cadastrados
-Registro de pedidos
+5. Escreva uma função para permitir o registro de um novo Pedido.
+5.1) Quando o usuário digitar o código do cliente, o programa deverá buscar este código na tabela de Clientes e exibir o nome do cliente.
+5.2) Quando o usuário digitar o código do garçom, o programa deverá buscar este código na tabela de Garçons e exibir o nome do garçom.
+5.3) O programa deverá permitir a inclusão de um único produto para cada pedido, conforme orientações do item 6.
 
-O sistema permite:
+6. Escreva uma função para permitir a inclusão de produtos em um pedido.
+6.1) Quando o usuário digitar o código do produto, o programa deverá buscar este código na tabela de Produtos e exibir a descrição e o preço unitário.
+6.2) Para cada produto selecionado, o programa deverá verificar na estrutura de Consumo de Ingredientes quais ingredientes são necessários.
+6.3) Para cada ingrediente necessário:
+     Mostrar a descrição do ingrediente
+     Verificar se a quantidade em estoque é suficiente
+     O programa não deverá permitir a inclusão do item caso algum ingrediente não tenha quantidade suficiente
+6.4) Caso seja possível preparar o produto, o programa deverá subtrair do estoque a quantidade necessária de cada ingrediente
 
-Criar novos pedidos
-Buscar automaticamente:
-Cliente pelo código
-Garçom pelo código
-Inserir produtos no pedido
-Controle de estoque de ingredientes
+7. Escreva uma função para permitir ao usuário consultar os dados de determinado ingrediente.
+7.1) Para cada ingrediente consultado, exibir:
+     Todos os seus dados
+     O valor total em estoque (quant_estoque × preço_unitario)
 
-Ao adicionar um produto no pedido:
+8. Escreva uma função para exibir todos os ingredientes que estejam com a quantidade em estoque abaixo do estoque mínimo.
+8.1) As seguintes informações devem ser exibidas: Código, Descrição, Quantidade em estoque, Estoque máximo, Quantidade a ser comprada, Valor da compra
+8.1.1) A quantidade a ser comprada é calculada pela diferença entre o estoque máximo e a quantidade em estoque
+8.2) Ao final, a função deverá exibir o valor total a ser gasto na reposição de ingredientes
 
-O sistema verifica quais ingredientes são necessários
-Confere se existe estoque suficiente
-Impede a inclusão caso falte ingrediente
-Atualiza automaticamente o estoque após a venda
-Consulta de ingredientes
+9. Escreva uma função para exibir o valor total arrecadado com todos os pedidos.
+9.1) O valor de cada pedido deve ser calculado pela soma dos valores de seus itens
+9.2) O valor de cada item é calculado multiplicando a quantidade pelo preço unitário do produto
 
-É possível consultar:
-
-Código
-Descrição
-Estoque atual
-Estoque mínimo
-Estoque máximo
-Preço unitário
-Valor total em estoque
-Relatório de reposição de estoque
-
-O sistema identifica ingredientes abaixo do estoque mínimo e exibe:
-
-Código
-Descrição
-Quantidade atual
-Estoque máximo
-Quantidade necessária para reposição
-Valor da compra
-
-Também calcula o valor total necessário para reposição do estoque.
-
-Relatório financeiro
-
-O sistema calcula:
-
-Valor total arrecadado com os pedidos
-Soma total dos itens vendidos
-Tecnologias Utilizadas
-Linguagem: C++
-Paradigma: Programação Estruturada
-Estruturas utilizadas:
-struct
-vector
-funções
-busca sequencial
-Estruturas do Sistema
-Categorias
-struct Categoria {
-    int codigo;
-    string descricao;
-};
-Produtos
-struct Produto {
-    int codigo;
-    string descricao;
-    int codigo_categoria;
-    double preco_unitario;
-};
-Ingredientes
-struct Ingrediente {
-    int codigo;
-    string descricao;
-    double quant_estoque;
-    double estoque_minimo;
-    double estoque_maximo;
-    double preco_unitario;
-};
-Clientes
-struct Cliente {
-    int codigo;
-    string nome;
-    string telefone;
-};
-Garçons
-struct Garcom {
-    int codigo;
-    string nome;
-};
-Pedidos
-struct Pedido {
-    int codigo;
-    int codigo_cliente;
-    int codigo_garcom;
-    string data;
-};
-Itens do Pedido
-struct ItemPedido {
-    int codigo_pedido;
-    int codigo_produto;
-    int quantidade;
-};
-Consumo de Ingredientes
-struct ConsumoIngrediente {
-    int codigo_produto;
-    int codigo_ingrediente;
-    double quantidade_necessaria;
-};
-Menu do Sistema
-1 - Ler categorias
-2 - Ler produtos
-3 - Ler ingredientes
-4 - Incluir cliente
-5 - Incluir garçom
-6 - Excluir produto
-7 - Novo pedido
-8 - Consultar ingrediente
-9 - Ingredientes abaixo mínimo
-10 - Total arrecadado
-0 - Sair
-Regras Implementadas
-Não utilização de variáveis globais
-Validação de códigos duplicados
-Busca sequencial para localizar registros
-Controle automático de estoque
-Verificação de disponibilidade de ingredientes
-Atualização automática do estoque após pedidos
-Objetivo Acadêmico
-
-Este projeto foi desenvolvido com fins acadêmicos para prática de:
-
-Programação em C++
-Manipulação de vetores
-Estruturas de dados
-Modularização
-Funções
-Controle de estoque
-Simulação de banco de dados sequencial
-Como Executar
-Exemplo de Uso
-Cadastrar categorias
-Cadastrar produtos
-Cadastrar ingredientes
-Adicionar clientes
-Adicionar garçons
-Criar pedidos
-Consultar estoque
-Verificar total arrecadado
-Melhorias Futuras
-Persistência em arquivos .txt ou .dat
-Interface gráfica
-Banco de dados
-Login de usuários
-Relatórios avançados
-Controle de mesas
-Controle de pagamentos
-Exclusão lógica de registros
-
-Projeto desenvolvido para fins de estudo e aprendizado em Análise e Desenvolvimento de Sistemas.
+Observações:  
+Todas as funções descritas acima deverão ser chamadas através de um menu de opções, que será implementado na função main().
+Não utilizar variáveis globais
+As buscas devem ser realizadas de forma aleatória
+Garantir validações conforme especificado em cada item
