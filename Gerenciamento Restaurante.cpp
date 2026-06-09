@@ -467,4 +467,9 @@ void mostrarProdutos(Produto produtos[], int n) {
     cout << "\n--- Lista de Produtos ---\n";
     cout << left << setw(8) << "Cod" << setw(40) << "Descricao" << setw(8) << "Cat" << setw(10) << "Preco" << setw(8) << "Ativo" << "\n";
     for (int i = 0; i < n; ++i) {
-        cout << left
+        cout << left << setw(8) << produtos[i].codigo << setw(40) << produtos[i].descricao
+             << setw(8) << produtos[i].codigo_categoria
+             << "R$ " << setw(8) << fixed << setprecision(2) << produtos[i].preco_unitario
+             << (produtos[i].ativo ? "Sim" : "Nao") << "\n";                                                    
+    }
+}                 
