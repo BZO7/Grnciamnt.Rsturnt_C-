@@ -1,27 +1,37 @@
 #include <iostream>
-#include <string>
 #include <iomanip>
+#include <cstring>
+#include <limits>
 #include <fstream>
 
 using namespace std;
 
-const int MAX = 100;
+const int MAX_CATEGORIAS = 50;
+const int MAX_PRODUTOS = 200;
+const int MAX_INGREDIENTES = 200;
+const int MAX_CLIENTES = 500;
+const int MAX_GARCONS = 100;
+const int MAX_PEDIDOS = 500;
+const int MAX_ITENS_PEDIDO = 1000;
+const int MAX_CONSUMO = 1000;
+const int MAX_LISTA = 200;
 
 struct Categoria {
     int codigo;
-    string descricao;
+    char descricao[50];
 };
 
 struct Produto {
     int codigo;
-    string descricao;
+    char descricao[60];
     int codigo_categoria;
     double preco_unitario;
+    bool ativo;
 };
 
 struct Ingrediente {
     int codigo;
-    string descricao;
+    char descricao[60];
     int quant_estoque;
     int estoque_minimo;
     int estoque_maximo;
@@ -30,20 +40,21 @@ struct Ingrediente {
 
 struct Cliente {
     int codigo;
-    string nome;
-    string telefone;
+    char nome[60];
+    char telefone[20];
 };
 
 struct Garcom {
     int codigo;
-    string nome;
+    char nome[60];
 };
 
 struct Pedido {
     int codigo;
     int codigo_cliente;
     int codigo_garcom;
-    string data;
+    char data[20];
+    bool ativo;
 };
 
 struct ItemPedido {
@@ -58,602 +69,402 @@ struct ConsumoIngrediente {
     int quantidade_necessaria;
 };
 
-struct TempConsumo {
-    int idx_ingr;
-    int total_necessario;
-};
-
-void carregarDadosPadrao(Categoria categorias[], int& cont_cat, Produto produtos[], int& cont_prod, 
-                         Ingrediente ingredientes[], int& cont_ingr, ConsumoIngrediente consumos[], int& cont_cons) {
-    
-    categorias[0] = {1, "Bebidas"};
-    categorias[1] = {2, "Pratos Principais"};
-    categorias[2] = {3, "Sobremesas"};
-    cont_cat = 3;
-
-    produtos[0] = {101, "Suco de Laranja", 1, 8.50};
-    produtos[1] = {102, "X-Burguer", 2, 25.00};
-    produtos[2] = {103, "Fritas com Queijo", 2, 18.00};
-    produtos[3] = {104, "Pudim", 3, 10.00};
-    cont_prod = 4;
-
-    ingredientes[0] = {10, "Laranja", 50, 20, 100, 0.50};
-    ingredientes[1] = {11, "Hamburguer Carne", 5, 10, 40, 4.50};
-    ingredientes[2] = {12, "Pao de Hamburguer", 15, 8, 30, 1.20};
-    ingredientes[3] = {13, "Queijo Prato", 8, 15, 50, 2.00};
-    ingredientes[4] = {14, "Batata Congelada", 30, 10, 60, 3.00};
-    ingredientes[5] = {15, "Leite Condensado", 12, 5, 20, 5.50};
-    cont_ingr = 6;
-
-    consumos[0] = {101, 10, 4}; 
-    consumos[1] = {102, 11, 1}; 
-    consumos[2] = {102, 12, 1}; 
-    consumos[3] = {102, 13, 2}; 
-    consumos[4] = {103, 14, 1}; 
-    consumos[5] = {103, 13, 1}; 
-    consumos[6] = {104, 15, 1}; 
-    cont_cons = 7;
+void limparEntrada() {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-void carregarArquivos(Cliente clientes[], int& cont_cli, Garcom garcons[], int& cont_garc,
-                      Pedido pedidos[], int& cont_ped, ItemPedido itens[], int& cont_itens) {
-    
-    ifstream f_cli("clientes.txt");
-    if (f_cli.is_open()) {
-        while (f_cli >> clientes[cont_cli].codigo) {
-            f_cli.ignore();
-            getline(f_cli, clientes[cont_cli].nome);
-            getline(f_cli, clientes[cont_cli].telefone);
-            cont_cli++;
-        }
-        f_cli.close();
-    }
-
-    ifstream f_garc("garcons.txt");
-    if (f_garc.is_open()) {
-        while (f_garc >> garcons[cont_garc].codigo) {
-            f_garc.ignore();
-            getline(f_garc, garcons[cont_garc].nome);
-            cont_garc++;
-        }
-        f_garc.close();
-    }
-
-    ifstream f_ped("pedidos.txt");
-    if (f_ped.is_open()) {
-        while (f_ped >> pedidos[cont_ped].codigo >> pedidos[cont_ped].codigo_cliente >> pedidos[cont_ped].codigo_garcom) {
-            f_ped.ignore();
-            getline(f_ped, pedidos[cont_ped].data);
-            cont_ped++;
-        }
-        f_ped.close();
-    }
-
-    ifstream f_itens("itens.txt");
-    if (f_itens.is_open()) {
-        while (f_itens >> itens[cont_itens].codigo_pedido >> itens[cont_itens].codigo_produto >> itens[cont_itens].quantidade) {
-            cont_itens++;
-        }
-        f_itens.close();
-    }
+void inicializarCategorias(Categoria categorias[], int &n) {
+    n = 6;
+    categorias[0].codigo = 1; strcpy(categorias[0].descricao, "Bebidas");
+    categorias[1].codigo = 2; strcpy(categorias[1].descricao, "Salgados");
+    categorias[2].codigo = 3; strcpy(categorias[2].descricao, "Sobremesas");
+    categorias[3].codigo = 4; strcpy(categorias[3].descricao, "Massas");
+    categorias[4].codigo = 5; strcpy(categorias[4].descricao, "Porcoes");
+    categorias[5].codigo = 6; strcpy(categorias[5].descricao, "Pães");
 }
 
-void salvarArquivos(const Cliente clientes[], int cont_cli, const Garcom garcons[], int cont_garc,
-                    const Pedido pedidos[], int cont_ped, const ItemPedido itens[], int cont_itens) {
-    
-    ofstream f_cli("clientes.txt");
-    for (int i = 0; i < cont_cli; i++) {
-        f_cli << clientes[i].codigo << "\n" << clientes[i].nome << "\n" << clientes[i].telefone << "\n";
-    }
-    f_cli.close();
-
-    ofstream f_garc("garcons.txt");
-    for (int i = 0; i < cont_garc; i++) {
-        f_garc << garcons[i].codigo << "\n" << garcons[i].nome << "\n";
-    }
-    f_garc.close();
-
-    ofstream f_ped("pedidos.txt");
-    for (int i = 0; i < cont_ped; i++) {
-        f_ped << pedidos[i].codigo << " " << pedidos[i].codigo_cliente << " " << pedidos[i].codigo_garcom << "\n" << pedidos[i].data << "\n";
-    }
-    f_ped.close();
-
-    ofstream f_itens("itens.txt");
-    for (int i = 0; i < cont_itens; i++) {
-        f_itens << itens[i].codigo_pedido << " " << itens[i].codigo_produto << " " << itens[i].quantidade << "\n";
-    }
-    f_itens.close();
+void inicializarProdutos(Produto produtos[], int &n) {
+    n = 12;
+    produtos[0] = {100, "Coca-Cola 350ml", 1, 5.00, true};
+    produtos[1] = {101, "Suco Laranja 300ml", 1, 6.50, true};
+    produtos[2] = {102, "Agua Mineral 500ml", 1, 3.50, true};
+    produtos[3] = {200, "Coxinha", 2, 4.00, true};
+    produtos[4] = {201, "Pastel Queijo", 2, 7.00, true};
+    produtos[5] = {202, "Empada Frango", 2, 5.50, true};
+    produtos[6] = {300, "Pudim", 3, 8.00, true};
+    produtos[7] = {301, "Sorvete 1 bola", 3, 5.50, true};
+    produtos[8] = {400, "Spaghetti ao molho", 4, 22.00, true};
+    produtos[9] = {401, "Lasanha", 4, 30.00, true};
+    produtos[10] = {500, "Batata Frita", 5, 12.00, true};
+    produtos[11] = {501, "Porcao Mista", 5, 25.00, true};
 }
 
-void lerCategorias(const Categoria categorias[], int cont_cat) {
-    cout << "\n--- CATEGORIAS DO CARDAPIO ---\n";
-    for (int i = 0; i < cont_cat; ++i) {
-        cout << "ID: " << categorias[i].codigo << " | " << categorias[i].descricao << "\n";
+void inicializarIngredientes(Ingrediente ingredientes[], int &n) {
+    n = 12;
+    ingredientes[0] = {10, "Acucar (kg)", 50, 10, 100, 4.00};
+    ingredientes[1] = {11, "Leite (L)", 30, 10, 50, 3.50};
+    ingredientes[2] = {12, "Farinha (kg)", 40, 15, 100, 2.50};
+    ingredientes[3] = {13, "Queijo (kg)", 10, 5, 30, 25.00};
+    ingredientes[4] = {14, "Carne (kg)", 20, 8, 50, 30.00};
+    ingredientes[5] = {15, "Oleo (L)", 15, 5, 30, 6.00};
+    ingredientes[6] = {16, "Tomate (kg)", 25, 8, 60, 5.00};
+    ingredientes[7] = {17, "Macarrao (kg)", 20, 5, 60, 4.50};
+    ingredientes[8] = {18, "Oregano (g)", 200, 50, 500, 0.05};
+    ingredientes[9] = {19, "Manteiga (kg)", 12, 4, 30, 18.00};
+    ingredientes[10] = {20, "Frango (kg)", 18, 6, 40, 20.00};
+    ingredientes[11] = {21, "Batata (kg)", 40, 10, 100, 3.00};
+}
+
+void inicializarConsumo(ConsumoIngrediente consumo[], int &n) {
+    n = 18;
+    consumo[0] = {200, 12, 1};
+    consumo[1] = {200, 14, 1};
+    consumo[2] = {201, 12, 1};
+    consumo[3] = {201, 13, 1};
+    consumo[4] = {202, 12, 1};
+    consumo[5] = {202, 20, 1};
+    consumo[6] = {300, 11, 1};
+    consumo[7] = {300, 10, 1};
+    consumo[8] = {301, 11, 1};
+    consumo[9] = {400, 17, 1};
+    consumo[10] = {400, 16, 1};
+    consumo[11] = {400, 13, 1};
+    consumo[12] = {401, 17, 2};
+    consumo[13] = {401, 14, 2};
+    consumo[14] = {500, 21, 1};
+    consumo[15] = {501, 21, 1};
+    consumo[16] = {501, 13, 1};
+    consumo[17] = {201, 15, 1};
+}
+
+void ordenarCategorias(Categoria vetor[], int n) {
+    for (int i = 1; i < n; i++) {
+        Categoria chave = vetor[i];
+        int j = i - 1;
+        while (j >= 0 && vetor[j].codigo > chave.codigo) {
+            vetor[j + 1] = vetor[j];
+            j--;
+        }
+        vetor[j + 1] = chave;
     }
 }
 
-void lerProdutos(const Produto produtos[], int cont_prod) {
-    cout << "\n--- CARDAPIO DISPONIVEL ---\n";
-    for (int i = 0; i < cont_prod; ++i) {
-        cout << "Cod: " << produtos[i].codigo 
-             << " | Prato: " << produtos[i].descricao 
-             << " | Categoria: " << produtos[i].codigo_categoria 
-             << " | Preco: R$ " << fixed << setprecision(2) << produtos[i].preco_unitario << "\n";
+void ordenarProdutos(Produto vetor[], int n) {
+    for (int i = 1; i < n; i++) {
+        Produto chave = vetor[i];
+        int j = i - 1;
+        while (j >= 0 && vetor[j].codigo > chave.codigo) {
+            vetor[j + 1] = vetor[j];
+            j--;
+        }
+        vetor[j + 1] = chave;
     }
 }
 
-void lerIngredientes(const Ingrediente ingredientes[], int cont_ingr) {
-    cout << "\n--- ESTOQUE ATUAL DE INSUMOS ---\n";
-    for (int i = 0; i < cont_ingr; ++i) {
-        cout << "Cod: " << ingredientes[i].codigo 
-             << " | Item: " << ingredientes[i].descricao 
-             << " | Quantidade: " << ingredientes[i].quant_estoque 
-             << " | Preco Un: R$ " << ingredientes[i].preco_unitario << "\n";
+void ordenarIngredientes(Ingrediente vetor[], int n) {
+    for (int i = 1; i < n; i++) {
+        Ingrediente chave = vetor[i];
+        int j = i - 1;
+        while (j >= 0 && vetor[j].codigo > chave.codigo) {
+            vetor[j + 1] = vetor[j];
+            j--;
+        }
+        vetor[j + 1] = chave;
     }
 }
 
-void incluirCliente(Cliente clientes[], int& cont_cli) {
-    cout << "\n--- REGISTRAR NOVO CLIENTE ---\n";
-    if (cont_cli >= MAX) {
-        cout << "Armazenamento de clientes esgotado.\n";
-        return;
-    }
-
-    int codigo;
-    cout << "Defina o codigo identificador: ";
-    cin >> codigo;
-
-    for (int i = 0; i < cont_cli; ++i) {
-        if (clientes[i].codigo == codigo) {
-            cout << "Identificador ja existente no banco de dados.\n";
-            return;
+void ordenarClientes(Cliente vetor[], int n) {
+    for (int i = 1; i < n; i++) {
+        Cliente chave = vetor[i];
+        int j = i - 1;
+        while (j >= 0 && vetor[j].codigo > chave.codigo) {
+            vetor[j + 1] = vetor[j];
+            j--;
         }
+        vetor[j + 1] = chave;
     }
-
-    Cliente novo;
-    novo.codigo = codigo;
-    cin.ignore();
-    cout << "Nome completo: ";
-    getline(cin, novo.nome);
-    cout << "Telefone de contato: ";
-    getline(cin, novo.telefone);
-
-    clientes[cont_cli] = novo;
-    cont_cli++;
-    cout << "Cliente adicionado com sucesso.\n";
 }
 
-void incluirGarcom(Garcom garcons[], int& cont_garc) {
-    cout << "\n--- REGISTRAR NOVO GARCOM ---\n";
-    if (cont_garc >= MAX) {
-        cout << "Armazenamento de equipe esgotado.\n";
-        return;
-    }
-
-    int codigo;
-    cout << "Defina o codigo identificador: ";
-    cin >> codigo;
-
-    for (int i = 0; i < cont_garc; ++i) {
-        if (garcons[i].codigo == codigo) {
-            cout << "Identificador ja cadastrado na equipe.\n";
-            return;
+void ordenarGarcons(Garcom vetor[], int n) {
+    for (int i = 1; i < n; i++) {
+        Garcom chave = vetor[i];
+        int j = i - 1;
+        while (j >= 0 && vetor[j].codigo > chave.codigo) {
+            vetor[j + 1] = vetor[j];
+            j--;
         }
+        vetor[j + 1] = chave;
     }
-
-    Garcom novo;
-    novo.codigo = codigo;
-    cin.ignore();
-    cout << "Nome completo do colaborador: ";
-    getline(cin, novo.nome);
-
-    garcons[cont_garc] = novo;
-    cont_garc++;
-    cout << "Colaborador integrado com sucesso.\n";
 }
 
-void excluirProduto(Produto produtos[], int& cont_prod) {
-    cout << "\n--- REMOCAO DE PRODUTO DO CARDAPIO ---\n";
-    int codigo;
-    cout << "Insira o codigo do produto para delecao: ";
-    cin >> codigo;
-
-    for (int i = 0; i < cont_prod; ++i) {
-        if (produtos[i].codigo == codigo) {
-            for (int j = i; j < cont_prod - 1; ++j) {
-                produtos[j] = produtos[j + 1];
-            }
-            cont_prod--;
-            cout << "Produto removido permanentemente do cardapio.\n";
-            return;
+void ordenarConsumo(ConsumoIngrediente vetor[], int n) {
+    for (int i = 1; i < n; i++) {
+        ConsumoIngrediente chave = vetor[i];
+        int j = i - 1;
+        while (j >= 0 && vetor[j].codigo_produto > chave.codigo_produto) {
+            vetor[j + 1] = vetor[j];
+            j--;
         }
+        vetor[j + 1] = chave;
     }
-    cout << "Codigo nao localizado.\n";
 }
 
-void atualizarEstoqueManual(Ingrediente ingredientes[], int cont_ingr) {
-    cout << "\n--- ATUALIZACAO MANUAL DE ESTOQUE (COMPRAS) ---\n";
-    int codigo, qtd;
-    cout << "Insira o codigo do ingrediente comprado: ";
-    cin >> codigo;
-
-    for (int i = 0; i < cont_ingr; i++) {
-        if (ingredientes[i].codigo == codigo) {
-            cout << "Ingrediente localizado: " << ingredientes[i].descricao << "\n";
-            cout << "Quantidade atual em estoque: " << ingredientes[i].quant_estoque << "\n";
-            cout << "Quantidade recebida do fornecedor: ";
-            cin >> qtd;
-
-            if (ingredientes[i].quant_estoque + qtd > ingredientes[i].estoque_maximo) {
-                cout << "Aviso: Esse volume excede a capacidade maxima de armazenamento de " << ingredientes[i].estoque_maximo << " unidades.\n";
-                cout << "Operacao cancelada.\n";
-                return;
-            }
-
-            ingredientes[i].quant_estoque += qtd;
-            cout << "Estoque atualizado para: " << ingredientes[i].quant_estoque << " unidades.\n";
-            return;
-        }
+int buscaBinariaProduto(Produto produtos[], int n, int codigo) {
+    int i = 0, f = n - 1;
+    while (i <= f) {
+        int m = (i + f) / 2;
+        if (produtos[m].codigo == codigo) return m;
+        else if (produtos[m].codigo < codigo) i = m + 1;
+        else f = m - 1;
     }
-    cout << "Item de estoque nao cadastrado.\n";
+    return -1;
 }
 
-bool processarItemIndividual(int codigo_pedido, Produto produtos[], int cont_prod, 
-                             Ingrediente ingredientes[], int cont_ingr, 
-                             const ConsumoIngrediente consumos[], int cont_cons, 
-                             ItemPedido itens[], int& cont_itens) {
-    
-    if (cont_itens >= MAX) {
-        cout << "Limite maximo de itens no sistema atingido.\n";
-        return false;
+int buscaBinariaCliente(Cliente clientes[], int n, int codigo) {
+    int i = 0, f = n - 1;
+    while (i <= f) {
+        int m = (i + f) / 2;
+        if (clientes[m].codigo == codigo) return m;
+        else if (clientes[m].codigo < codigo) i = m + 1;
+        else f = m - 1;
     }
+    return -1;
+}
 
-    int cod_prod;
-    cout << "Informe o codigo do produto: ";
-    cin >> cod_prod;
-
-    int idx_prod = -1;
-    for (int i = 0; i < cont_prod; ++i) {
-        if (produtos[i].codigo == cod_prod) {
-            idx_prod = i;
-            break;
-        }
+int buscaBinariaGarcom(Garcom garcons[], int n, int codigo) {
+    int i = 0, f = n - 1;
+    while (i <= f) {
+        int m = (i + f) / 2;
+        if (garcons[m].codigo == codigo) return m;
+        else if (garcons[m].codigo < codigo) i = m + 1;
+        else f = m - 1;
     }
+    return -1;
+}
 
-    if (idx_prod == -1) {
-        cout << "Produto inexistente.\n";
-        return false;
+int buscaBinariaIngrediente(Ingrediente ingredientes[], int n, int codigo) {
+    int i = 0, f = n - 1;
+    while (i <= f) {
+        int m = (i + f) / 2;
+        if (ingredientes[m].codigo == codigo) return m;
+        else if (ingredientes[m].codigo < codigo) i = m + 1;
+        else f = m - 1;
     }
+    return -1;
+}
 
-    cout << "Selecionado: " << produtos[idx_prod].descricao 
-         << " | Preco Unitario: R$ " << produtos[idx_prod].preco_unitario << "\n";
-
-    int qtde;
-    cout << "Quantidade desejada: ";
-    cin >> qtde;
-
-    bool estoque_ok = true;
-    TempConsumo verificar_estoque[MAX];
-    int cont_temp = 0;
-
-    for (int i = 0; i < cont_cons; ++i) {
-        if (consumos[i].codigo_produto == cod_prod) {
-            int idx_ingr = -1;
-            for (int j = 0; j < cont_ingr; ++j) {
-                if (ingredientes[j].codigo == consumos[i].codigo_ingrediente) {
-                    idx_ingr = j;
-                    break;
-                }
-            }
-
-            if (idx_ingr != -1) {
-                int total_nec = consumos[i].quantidade_necessaria * qtde;
-                cout << "  -> Requisito: " << ingredientes[idx_ingr].descricao 
-                     << " | Necessario: " << total_nec 
-                     << " | Em Estoque: " << ingredientes[idx_ingr].quant_estoque << "\n";
-
-                if (ingredientes[idx_ingr].quant_estoque < total_nec) {
-                    estoque_ok = false;
-                } else {
-                    verificar_estoque[cont_temp] = {idx_ingr, total_nec};
-                    cont_temp++;
-                }
-            }
-        }
-    }
-
-    if (!estoque_ok) {
-        cout << "Insumos insuficientes para processar este item.\n";
-        return false;
-    }
-
-    for (int i = 0; i < cont_temp; ++i) {
-        ingredientes[verificar_estoque[i].idx_ingr].quant_estoque -= verificar_estoque[i].total_necessario;
-    }
-
-    ItemPedido novo_item;
-    novo_item.codigo_pedido = codigo_pedido;
-    novo_item.codigo_produto = cod_prod;
-    novo_item.quantidade = qtde;
-    
-    itens[cont_itens] = novo_item;
-    cont_itens++;
-
-    cout << "Item validado e adicionado com sucesso.\n";
+bool incluirCliente(Cliente clientes[], int &n, const Cliente &novo) {
+    ordenarClientes(clientes, n);
+    if (buscaBinariaCliente(clientes, n, novo.codigo) != -1) return false;
+    if (n >= MAX_CLIENTES) return false;
+    clientes[n++] = novo;
+    ordenarClientes(clientes, n);
     return true;
 }
 
-void registrarPedido(Pedido pedidos[], int& cont_ped, const Cliente clientes[], int cont_cli, 
-                     const Garcom garcons[], int cont_garc, Produto produtos[], int cont_prod, 
-                     Ingrediente ingredientes[], int cont_ingr, const ConsumoIngrediente consumos[], int cont_cons, 
-                     ItemPedido itens[], int& cont_itens) {
-    
-    cout << "\n--- ABERTURA DE NOVO PEDIDO ---\n";
-    if (cont_ped >= MAX) {
-        cout << "Limite de pedidos em memoria esgotado.\n";
+bool incluirGarcom(Garcom garcons[], int &n, const Garcom &novo) {
+    ordenarGarcons(garcons, n);
+    if (buscaBinariaGarcom(garcons, n, novo.codigo) != -1) return false;
+    if (n >= MAX_GARCONS) return false;
+    garcons[n++] = novo;
+    ordenarGarcons(garcons, n);
+    return true;
+}
+
+bool excluirProduto(Produto produtos[], int &n, int codigo) {
+    ordenarProdutos(produtos, n);
+    int idx = buscaBinariaProduto(produtos, n, codigo);
+    if (idx == -1) return false;
+    produtos[idx].ativo = false;
+    return true;
+}
+
+bool construirListaConsumoParaProduto(ConsumoIngrediente consumo[], int n_consumo,
+                                      int codProduto,
+                                      int listaCods[], int listaQt[] , int &listaN) {
+    listaN = 0;
+    for (int i = 0; i < n_consumo; ++i) {
+        if (consumo[i].codigo_produto == codProduto) {
+            listaCods[listaN] = consumo[i].codigo_ingrediente;
+            listaQt[listaN] = consumo[i].quantidade_necessaria;
+            listaN++;
+            if (listaN >= MAX_LISTA) break;
+        }
+    }
+    return (listaN > 0);
+}
+
+bool verificarEConsumirIngredientes(int codigo_produto, int quantidade,
+                                    ConsumoIngrediente consumo[], int n_consumo,
+                                    Ingrediente ingredientes[], int &n_ingredientes) {
+    int listaCods[MAX_LISTA];
+    int listaQt[MAX_LISTA];
+    int listaN = 0;
+    bool tem = construirListaConsumoParaProduto(consumo, n_consumo, codigo_produto, listaCods, listaQt, listaN);
+    if (!tem) return true;
+    for (int i = 0; i < listaN; ++i) {
+        int codIng = listaCods[i];
+        int qtdNec = listaQt[i] * quantidade;
+        ordenarIngredientes(ingredientes, n_ingredientes);
+        int idx = buscaBinariaIngrediente(ingredientes, n_ingredientes, codIng);
+        if (idx == -1) return false;
+        if (ingredientes[idx].quant_estoque < qtdNec) return false;
+    }
+    for (int i = 0; i < listaN; ++i) {
+        int codIng = listaCods[i];
+        int qtdNec = listaQt[i] * quantidade;
+        int idx = buscaBinariaIngrediente(ingredientes, n_ingredientes, codIng);
+        ingredientes[idx].quant_estoque -= qtdNec;
+    }
+    return true;
+}
+
+bool registrarPedido(Pedido pedidos[], int &n_pedidos,
+                     ItemPedido itens[], int &n_itens,
+                     Cliente clientes[], int n_clientes,
+                     Garcom garcons[], int n_garcons,
+                     Produto produtos[], int n_produtos,
+                     ConsumoIngrediente consumo[], int n_consumo,
+                     Ingrediente ingredientes[], int &n_ingredientes,
+                     const Pedido &novoPedido,
+                     const ItemPedido &novoItem) {
+    ordenarClientes(clientes, n_clientes);
+    ordenarGarcons(garcons, n_garcons);
+    int idxCliente = buscaBinariaCliente(clientes, n_clientes, novoPedido.codigo_cliente);
+    if (idxCliente == -1) return false;
+    int idxGarcom = buscaBinariaGarcom(garcons, n_garcons, novoPedido.codigo_garcom);
+    if (idxGarcom == -1) return false;
+    ordenarProdutos(produtos, n_produtos);
+    int idxProduto = buscaBinariaProduto(produtos, n_produtos, novoItem.codigo_produto);
+    if (idxProduto == -1) return false;
+    if (!produtos[idxProduto].ativo) return false;
+    if (!verificarEConsumirIngredientes(novoItem.codigo_produto, novoItem.quantidade,
+                                        consumo, n_consumo, ingredientes, n_ingredientes)) return false;
+    if (n_pedidos >= MAX_PEDIDOS || n_itens >= MAX_ITENS_PEDIDO) return false;
+    pedidos[n_pedidos++] = novoPedido;
+    itens[n_itens++] = novoItem;
+    return true;
+}
+
+void consultarIngrediente(Ingrediente ingredientes[], int n, int codigo) {
+    ordenarIngredientes(ingredientes, n);
+    int idx = buscaBinariaIngrediente(ingredientes, n, codigo);
+    if (idx == -1) {
+        cout << "Ingrediente nao encontrado.\n";
         return;
     }
-
-    int cod_pedido;
-    cout << "Insira o numero de controle do pedido: ";
-    cin >> cod_pedido;
-
-    for (int i = 0; i < cont_ped; ++i) {
-        if (pedidos[i].codigo == cod_pedido) {
-            cout << "Controle de pedido ja ativo.\n";
-            return;
-        }
-    }
-
-    int cod_cli;
-    cout << "Informe o codigo do cliente: ";
-    cin >> cod_cli;
-
-    int idx_cli = -1;
-    for (int i = 0; i < cont_cli; ++i) {
-        if (clientes[i].codigo == cod_cli) {
-            idx_cli = i;
-            break;
-        }
-    }
-
-    if (idx_cli == -1) {
-        cout << "Ficha de cliente nao cadastrada.\n";
-        return;
-    }
-    cout << "Ficha localizada: " << clientes[idx_cli].nome << "\n";
-
-    int cod_garc;
-    cout << "Informe o codigo do garcom responsavel: ";
-    cin >> cod_garc;
-
-    int idx_garc = -1;
-    for (int i = 0; i < cont_garc; ++i) {
-        if (garcons[i].codigo == cod_garc) {
-            idx_garc = i;
-            break;
-        }
-    }
-
-    if (idx_garc == -1) {
-        cout << "Registro de colaborador nao cadastrado.\n";
-        return;
-    }
-    cout << "Atendente vinculado: " << garcons[idx_garc].nome << "\n";
-
-    string data_ped;
-    cout << "Data do atendimento (DD/MM/AAAA): ";
-    cin >> data_ped;
-
-    bool adicionou_item = false;
-    char continuar = 'S';
-
-    while (continuar == 'S' || continuar == 's') {
-        if (processarItemIndividual(cod_pedido, produtos, cont_prod, ingredientes, cont_ingr, consumos, cont_cons, itens, cont_itens)) {
-            adicionou_item = true;
-        }
-        cout << "Deseja incluir mais produtos neste atendimento? (S/N): ";
-        cin >> continuar;
-    }
-
-    if (adicionou_item) {
-        Pedido novo_pedido;
-        novo_pedido.codigo = cod_pedido;
-        novo_pedido.codigo_cliente = cod_cli;
-        novo_pedido.codigo_garcom = cod_garc;
-        novo_pedido.data = data_ped;
-        
-        pedidos[cont_ped] = novo_pedido;
-        cont_ped++;
-        cout << "Atendimento concluido e registrado.\n";
-    } else {
-        cout << "Pedido descartado pois nenhum item foi contabilizado.\n";
-    }
+    Ingrediente &ing = ingredientes[idx];
+    cout << fixed << setprecision(2);
+    cout << "\nCodigo: " << ing.codigo << "\nDescricao: " << ing.descricao
+         << "\nQuantidade em estoque: " << ing.quant_estoque
+         << "\nEstoque minimo: " << ing.estoque_minimo
+         << "\nEstoque maximo: " << ing.estoque_maximo
+         << "\nPreco unitario: R$ " << ing.preco_unitario << "\n";
+    double valorTotal = ing.quant_estoque * ing.preco_unitario;
+    cout << "Valor total em estoque: R$ " << valorTotal << "\n";
 }
 
-void consultarIngrediente(const Ingrediente ingredientes[], int cont_ingr) {
-    cout << "\n--- INSPECAO DE INGREDIENTE ---\n";
-    int codigo;
-    cout << "Insira o codigo para checagem: ";
-    cin >> codigo;
-
-    for (int i = 0; i < cont_ingr; ++i) {
-        if (ingredientes[i].codigo == codigo) {
-            double valor_total = ingredientes[i].quant_estoque * ingredientes[i].preco_unitario;
-            cout << "\nIdentificador: " << ingredientes[i].codigo << "\n"
-                 << "Descricao: " << ingredientes[i].descricao << "\n"
-                 << "Volume Físico: " << ingredientes[i].quant_estoque << " unidades\n"
-                 << "Margem de Alerta (Minima): " << ingredientes[i].estoque_minimo << "\n"
-                 << "Margem Limite (Maxima): " << ingredientes[i].estoque_maximo << "\n"
-                 << "Preco Unitario de Custo: R$ " << fixed << setprecision(2) << ingredientes[i].preco_unitario << "\n"
-                 << "Capital imobilizado em estoque: R$ " << valor_total << "\n";
-            return;
+void listarIngredientesAbaixoEstoque(Ingrediente ingredientes[], int n) {
+    cout << "\n--- Ingredientes abaixo do estoque minimo ---\n";
+    double valorTotalReposicao = 0.0;
+    cout << left << setw(8) << "Cod" << setw(25) << "Descricao" << setw(10) << "QtdEst"
+         << setw(10) << "EstMax" << setw(12) << "QtdComprar" << setw(15) << "ValorCompra" << "\n";
+    for (int i = 0; i < n; ++i) {
+        Ingrediente &ing = ingredientes[i];
+        if (ing.quant_estoque < ing.estoque_minimo) {
+            int qtdComprar = ing.estoque_maximo - ing.quant_estoque;
+            double valorCompra = qtdComprar * ing.preco_unitario;
+            valorTotalReposicao += valorCompra;
+            cout << left << setw(8) << ing.codigo << setw(25) << ing.descricao
+                 << setw(10) << ing.quant_estoque << setw(10) << ing.estoque_maximo
+                 << setw(12) << qtdComprar << "R$ " << setw(10) << fixed << setprecision(2) << valorCompra << "\n";
         }
     }
-    cout << "Item inexistente.\n";
+    cout << fixed << setprecision(2);
+    cout << "\nValor total de reposicao: R$ " << valorTotalReposicao << "\n";
 }
 
-void relatorioEstoqueBaixo(const Ingrediente ingredientes[], int cont_ingr) {
-    cout << "\n--- ALERTA: SUPRIMENTO ABAIXO DO NIVEL MINIMO ---\n";
-    cout << left << setw(8) << "Cod" 
-         << setw(20) << "Descricao" 
-         << setw(10) << "Est.Atual" 
-         << setw(10) << "Est.Max" 
-         << setw(12) << "Necessidade" 
-         << "Orcamento\n";
-    cout << "----------------------------------------------------------------------\n";
-
-    double total_geral_reposicao = 0.0;
-    bool encontrou = false;
-
-    for (int i = 0; i < cont_ingr; ++i) {
-        if (ingredientes[i].quant_estoque < ingredientes[i].estoque_minimo) {
-            encontrou = true;
-            int a_comprar = ingredientes[i].estoque_maximo - ingredientes[i].quant_estoque;
-            double valor_compra = a_comprar * ingredientes[i].preco_unitario;
-            total_geral_reposicao += valor_compra;
-
-            cout << left << setw(8) << ingredientes[i].codigo 
-                 << setw(20) << ingredientes[i].descricao 
-                 << setw(10) << ingredientes[i].quant_estoque 
-                 << setw(10) << ingredientes[i].estoque_maximo 
-                 << setw(12) << a_comprar 
-                 << "R$ " << fixed << setprecision(2) << valor_compra << "\n";
+double calcularTotalArrecadado(ItemPedido itens[], int n_itens, Produto produtos[], int n_produtos) {
+    ordenarProdutos(produtos, n_produtos);
+    double total = 0.0;
+    for (int i = 0; i < n_itens; ++i) {
+        int codProd = itens[i].codigo_produto;
+        int idx = buscaBinariaProduto(produtos, n_produtos, codProd);
+        if (idx != -1) {
+            total += produtos[idx].preco_unitario * itens[i].quantidade;
         }
     }
-
-    if (!encontrou) {
-        cout << "Niveis operacionais estaveis. Nao ha necessidade de reposicao.\n";
-    }
-    cout << "----------------------------------------------------------------------\n";
-    cout << "Fundo emergencial estimado para compras: R$ " << total_geral_reposicao << "\n";
+    return total;
 }
 
-void faturamentoTotal(const Pedido pedidos[], int cont_ped, const ItemPedido itens[], int cont_itens, 
-                      const Produto produtos[], int cont_prod) {
-    cout << "\n--- DEMONSTRATIVO FINANCEIRO DO PERIODO ---\n";
-    
-    double faturamento_geral = 0.0;
-
-    for (int i = 0; i < cont_ped; ++i) {
-        double total_pedido = 0.0;
-        
-        for (int j = 0; j < cont_itens; ++j) {
-            if (itens[j].codigo_pedido == pedidos[i].codigo) {
-                double preco_prod = 0.0;
-                
-                for (int k = 0; k < cont_prod; ++k) {
-                    if (produtos[k].codigo == itens[j].codigo_produto) {
-                        preco_prod = produtos[k].preco_unitario;
-                        break;
-                    }
-                }
-                total_pedido += (itens[j].quantidade * preco_prod);
-            }
-        }
-        faturamento_geral += total_pedido;
-    }
-
-    cout << "Volume de transacoes processadas: " << cont_ped << "\n";
-    cout << "Montante bruto arrecadado: R$ " << fixed << setprecision(2) << faturamento_geral << "\n";
+Cliente inputCliente() {
+    Cliente c;
+    cout << "Codigo do cliente: ";
+    cin >> c.codigo;
+    limparEntrada();
+    cout << "Nome: ";
+    cin.getline(c.nome, sizeof(c.nome));
+    cout << "Telefone: ";
+    cin.getline(c.telefone, sizeof(c.telefone));
+    return c;
 }
 
-void relatorioComissaoGarçons(const Pedido pedidos[], int cont_ped, const ItemPedido itens[], int cont_itens,
-                              const Produto produtos[], int cont_prod, const Garcom garcons[], int cont_garc) {
-    cout << "\n--- BALANCO DE PRODUCAO E COMISSAO DA EQUIPE ---\n";
-    
-    for (int g = 0; g < cont_garc; g++) {
-        double total_vendas_garcom = 0.0;
-        
-        for (int p = 0; p < cont_ped; p++) {
-            if (pedidos[p].codigo_garcom == garcons[g].codigo) {
-                
-                for (int i = 0; i < cont_itens; i++) {
-                    if (itens[i].codigo_pedido == pedidos[p].codigo) {
-                        double preco_prod = 0.0;
-                        for (int pr = 0; pr < cont_prod; pr++) {
-                            if (produtos[pr].codigo == itens[i].codigo_produto) {
-                                preco_prod = produtos[pr].preco_unitario;
-                                break;
-                            }
-                        }
-                        total_vendas_garcom += (itens[i].quantidade * preco_prod);
-                    }
-                }
-            }
-        }
-        double comissao = total_vendas_garcom * 0.10;
-        cout << "Colaborador: " << left << setw(20) << garcons[g].nome 
-             << " | Vendas: R$ " << setw(8) << total_vendas_garcom 
-             << " | Servico (10%): R$ " << comissao << "\n";
-    }
+Garcom inputGarcom() {
+    Garcom g;
+    cout << "Codigo do garcom: ";
+    cin >> g.codigo;
+    limparEntrada();
+    cout << "Nome: ";
+    cin.getline(g.nome, sizeof(g.nome));
+    return g;
 }
 
-int main() {
-    Categoria categorias[MAX];
-    Produto produtos[MAX];
-    Ingrediente ingredientes[MAX];
-    Cliente clientes[MAX];
-    Garcom garcons[MAX];
-    Pedido pedidos[MAX];
-    ItemPedido itens[MAX];
-    ConsumoIngrediente consumos[MAX];
-
-    int cont_cat = 0, cont_prod = 0, cont_ingr = 0, cont_cli = 0;
-    int cont_garc = 0, cont_ped = 0, cont_itens = 0, cont_cons = 0;
-
-    carregarDadosPadrao(categorias, cont_cat, produtos, cont_prod, ingredientes, cont_ingr, consumos, cont_cons);
-    carregarArquivos(clientes, cont_cli, garcons, cont_garc, pedidos, cont_ped, itens, cont_itens);
-
-    int opcao = 0;
-    do {
-        cout << "\n=========================================\n"
-             << "         GERENCIAMENTO DE RESTAURANTE    \n"
-             << "=========================================\n"
-             << "1.  Exibir Categorias\n"
-             << "2.  Exibir Menu de Produtos\n"
-             << "3.  Exibir Balanco de Insumos\n"
-             << "4.  Cadastrar Novo Cliente\n"
-             << "5.  Cadastrar Novo Garcom\n"
-             << "6.  Remover Item do Cardapio\n"
-             << "7.  Abrir Atendimento (Novo Pedido)\n"
-             << "8.  Entrada de Insumos (Estoque)\n"
-             << "9.  Consultar Ficha de um Ingrediente\n"
-             << "10. Relatorio: Alerta de Estoque Baixo\n"
-             << "11. Relatorio: Faturamento Operacional\n"
-             << "12. Relatorio: Comissoes de Servico\n"
-             << "0.  Salvar Dados e Sair\n"
-             << "Escolha uma acao: ";
-        
-        if (!(cin >> opcao)) {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Entrada inválida.\n";
-            continue;
-        }
-
-        switch (opcao) {
-            case 1:  lerCategorias(categorias, cont_cat); break;
-            case 2:  lerProdutos(produtos, cont_prod); break;
-            case 3:  lerIngredientes(ingredientes, cont_ingr); break;
-            case 4:  incluirCliente(clientes, cont_cli); break;
-            case 5:  incluirGarcom(garcons, cont_garc); break;
-            case 6:  excluirProduto(produtos, cont_prod); break;
-            case 7:  registrarPedido(pedidos, cont_ped, clientes, cont_cli, garcons, cont_garc, 
-                                     produtos, cont_prod, ingredientes, cont_ingr, consumos, cont_cons, itens, cont_itens); break;
-            case 8:  atualizarEstoqueManual(ingredientes, cont_ingr); break;
-            case 9:  consultarIngrediente(ingredientes, cont_ingr); break;
-            case 10: relatorioEstoqueBaixo(ingredientes, cont_ingr); break;
-            case 11: faturamentoTotal(pedidos, cont_ped, itens, cont_itens, produtos, cont_prod); break;
-            case 12: relatorioComissaoGarçons(pedidos, cont_ped, itens, cont_itens, produtos, cont_prod, garcons, cont_garc); break;
-            case 0:
-                salvarArquivos(clientes, cont_cli, garcons, cont_garc, pedidos, cont_ped, itens, cont_itens);
-                cout << "\nDados consolidados e gravados em disco. Encerrando.\n";
-                break;
-            default: cout << "Opcao inexistente.\n"; break;
-        }
-    } while (opcao != 0);
-
-    return 0;
+Pedido inputPedido() {
+    Pedido p;
+    cout << "Codigo do pedido: ";
+    cin >> p.codigo;
+    cout << "Codigo do cliente: ";
+    cin >> p.codigo_cliente;
+    cout << "Codigo do garcom: ";
+    cin >> p.codigo_garcom;
+    limparEntrada();
+    cout << "Data (dd/mm/aaaa): ";
+    cin.getline(p.data, sizeof(p.data));
+    p.ativo = true;
+    return p;
 }
+
+ItemPedido inputItemPedido(int pedidoCodigo) {
+    ItemPedido it;
+    it.codigo_pedido = pedidoCodigo;
+    cout << "Codigo do produto: ";
+    cin >> it.codigo_produto;
+    cout << "Quantidade: ";
+    cin >> it.quantidade;
+    return it;
+}
+
+void mostrarMenu() {
+    cout << "\n====== MENU PRINCIPAL ======\n";
+    cout << "1 - Carregar exemplos (categorias/produtos/ingredientes/consumo)\n";
+    cout << "2 - Incluir Cliente\n";
+    cout << "3 - Incluir Garcom\n";
+    cout << "4 - Excluir Produto\n";
+    cout << "5 - Registrar Pedido (um item por pedido)\n";
+    cout << "6 - Consultar Ingrediente\n";
+    cout << "7 - Listar Ingredientes abaixo do estoque minimo\n";
+    cout << "8 - Exibir valor total arrecadado com pedidos\n";
+    cout << "9 - Mostrar todos os produtos\n";
+    cout << "10 - Mostrar todos os ingredientes\n";
+    cout << "11 - Mostrar clientes cadastrados\n";
+    cout << "12 - Mostrar garcons cadastrados\n";
+    cout << "13 - Repor estoque manual de ingrediente\n";
+    cout << "0 - Sair\n";
+    cout << "Escolha uma opcao: ";
+}
+
+void mostrarProdutos(Produto produtos[], int n) {
+    cout << "\n--- Lista de Produtos ---\n";
+    cout << left << setw(8) << "Cod" << setw(40) << "Descricao" << setw(8) << "Cat" << setw(10) << "Preco" << setw(8) << "Ativo" << "\n";
+    for (int i = 0; i < n; ++i) {
+        cout << left
