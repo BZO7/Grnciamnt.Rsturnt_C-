@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <cstring>
 #include <limits>
-#include <fstream>
 
 using namespace std;
 
@@ -350,6 +349,10 @@ bool registrarPedido(Pedido pedidos[], int &n_pedidos,
                      Ingrediente ingredientes[], int &n_ingredientes,
                      const Pedido &novoPedido,
                      const ItemPedido &novoItem) {
+
+    if (novoItem.quantidade <= 0)
+        return false;
+
     for (int i = 0; i < n_pedidos; i++) {
         if (pedidos[i].codigo == novoPedido.codigo) {
             cout << "\nCodigo de pedido ja existente.\n";
@@ -527,12 +530,29 @@ void mostrarMenu() {
 
 void mostrarProdutos(Produto produtos[], int n) {
     cout << "\n--- Lista de Produtos ---\n";
-    cout << left << setw(8) << "Cod" << setw(40) << "Descricao" << setw(8) << "Cat" << setw(10) << "Preco" << setw(8) << "Ativo" << "\n";
+
+    cout << left
+         << setw(8) << "Cod"
+         << setw(40) << "Descricao"
+         << setw(8) << "Cat"
+         << setw(10) << "Preco"
+         << "\n";
+
     for (int i = 0; i < n; ++i) {
-        cout << left << setw(8) << produtos[i].codigo << setw(40) << produtos[i].descricao
+
+        if (!produtos[i].ativo)
+            continue;
+
+        cout << left
+             << setw(8) << produtos[i].codigo
+             << setw(40) << produtos[i].descricao
              << setw(8) << produtos[i].codigo_categoria
-             << "R$ " << setw(8) << fixed << setprecision(2) << produtos[i].preco_unitario
-             << (produtos[i].ativo ? "Sim" : "Nao") << "\n";
+             << "R$ "
+             << setw(8)
+             << fixed
+             << setprecision(2)
+             << produtos[i].preco_unitario
+             << "\n";
     }
 }
 void mostrarIngredientes(Ingrediente ingredientes[], int n) {
@@ -674,34 +694,52 @@ int main() {
             cin >> codigo;
 
             if (excluirProduto(produtos, nProdutos, codigo))
-                cout << "Produto excluido.\n";
+    cout << "Produto excluido.\n";
             else
-                cout << "Produto nao encontrado.\n";
+    cout << "Produto inexistente ou ja excluido.\n";
 
             break;
         }
 
         case 5: {
-            Pedido p = inputPedido();
-            ItemPedido it = inputItemPedido(p.codigo);
+            if (nProdutos == 0 ||
+        nIngredientes == 0 ||
+        nConsumo == 0) {
 
-            if (registrarPedido(
-                    pedidos,
-                    nPedidos,
-                    itens,
-                    nItens,
-                    clientes,
-                    nClientes,
-                    garcons,
-                    nGarcons,
-                    produtos,
-                    nProdutos,
-                    consumo,
-                    nConsumo,
-                    ingredientes,
-                    nIngredientes,
-                    p,
-                    it))
+        cout << "Carregue os dados primeiro usando a opcao 1.\n";
+        break;
+    }
+
+    if (nClientes == 0) {
+        cout << "Cadastre pelo menos um cliente.\n";
+        break;
+    }
+
+    if (nGarcons == 0) {
+        cout << "Cadastre pelo menos um garcom.\n";
+        break;
+    }
+
+    Pedido p = inputPedido();
+    ItemPedido it = inputItemPedido(p.codigo);
+
+    if (registrarPedido(
+                pedidos,
+                nPedidos,
+                itens,
+                nItens,
+                clientes,
+                nClientes,
+                garcons,
+                nGarcons,
+                produtos,
+                nProdutos,
+                consumo,
+                nConsumo,
+                ingredientes,
+                nIngredientes,
+                p,
+                it))
                 cout << "Pedido registrado.\n";
             else
                 cout << "Falha ao registrar pedido.\n";
